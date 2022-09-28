@@ -8,10 +8,6 @@ class Problem:
             totalTime += self.input[task][agent]
         return totalTime
 
-###########################
-# your algorithm class
-###########################
-
 def permutations(start, end=[], result=[]):
     if len(start) == 0:
         result.append(list(end))
