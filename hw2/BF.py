@@ -8,12 +8,13 @@ class Problem:
             totalTime += self.input[task][agent]
         return totalTime
 
-def permutations(start, end=[], result=[]):
-    if len(start) == 0:
+def permutations(input, end=[], result=[]):
+    in_len=len(input)
+    if in_len == 0:
         result.append(list(end))
     else:
-        for i in range(len(start)):
-            permutations(start[:i] + start[i+1:], end + start[i:i+1])
+        for i in range(in_len):
+            permutations(input[:i] + input[i+1:], end + input[i:i+1])
     return result
 
 def BF(numAgents):
