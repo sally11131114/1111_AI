@@ -8,6 +8,20 @@ class Problem:
             totalTime += self.input[task][agent]
         return totalTime
 
+
+def Best_ans(population):
+
+    min = solver.cost(population[0])
+    index = 0
+    for i in range(len(population)):
+        cost = 0
+        for task, agent in enumerate(population[i]):
+            cost+=input[task][agent]
+        if cost<min : 
+            index = i
+            min = cost
+    return population[index]
+
 import random
 POP_size = 20
 class GA:
@@ -18,6 +32,7 @@ class GA:
         self.chromosomes_p = [ 0 for i in range(POP_size)]
         self.parents = [ 0 for i in range(POP_size)]
         self.child = [ 0 for i in range(POP_size)]
+        self.best = []
 
         while True :
             self.chromosomes_dup = [ 0 for i in range(POP_size)]
@@ -28,7 +43,9 @@ class GA:
             print('len : ', len(set(self.chromosomes_dup)))
             if len(set(self.chromosomes_dup)) == POP_size : break; 
             #檢查染色體有沒有重複 
+        self.best = Best_ans(self.chromosomes)
         print('After shuffle : ', self.chromosomes)
+        print('self.best: ', self.best)
         self.sol = solver
 
     def evaluate_fitness(self):
@@ -82,6 +99,9 @@ class GA:
         for i in range(0, POP_size, 2):
             self.child[i], self.child[i+1] = self.change(self.parents[i], self.parents[i+1])
         print('child : ', self.child)
+    
+    def mutate(self):
+        
 
         
 
