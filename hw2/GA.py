@@ -11,18 +11,80 @@ class Problem:
 import random
 POP_size = 20
 class GA:
-    def __init__(self, numTasks):
-        self.chromosomes = [[ j  for j in range(numTasks)] for i in range(POP_size)]
-        self.chromosomes_dup = [ 0 for i in range(POP_size)]
-        
+    def __init__(self, solver):
+        self.chromosomes = [[ j  for j in range(solver.numTasks)] for i in range(POP_size)]
+        self.chromosomes_cost = [ 0 for i in range(POP_size)]
+        self.chromosomes_fitness = [ 0 for i in range(POP_size)]
+        self.chromosomes_p = [ 0 for i in range(POP_size)]
+        self.parents = [ 0 for i in range(POP_size)]
+        self.child = [ 0 for i in range(POP_size)]
+
         while True :
+            self.chromosomes_dup = [ 0 for i in range(POP_size)]
             for i in range(POP_size):
                 random.shuffle(self.chromosomes[i])
-                for j in range(numTasks):
+                for j in range(solver.numTasks):
                     self.chromosomes_dup[i] += self.chromosomes[i][j]*pow(10, j)
+            print('len : ', len(set(self.chromosomes_dup)))
             if len(set(self.chromosomes_dup)) == POP_size : break; 
             #檢查染色體有沒有重複 
         print('After shuffle : ', self.chromosomes)
+        self.sol = solver
+
+    def evaluate_fitness(self):
+        for i in range(POP_size):
+            self.chromosomes_cost[i] = self.sol.cost(self.chromosomes[i])
+        cost_max = max(self.chromosomes_cost)
+        cost_min = min(self.chromosomes_cost)
+        for i in range(POP_size):
+            self.chromosomes_fitness[i] = 1-(self.chromosomes_cost[i]-cost_min)/(cost_max-cost_min)
+
+    def choise_parents(self):
+        for i in range(POP_size):
+            self.chromosomes_p[i] = round(self.chromosomes_fitness[i]/sum(self.chromosomes_fitness), 4)
+
+        for i in range(POP_size):
+            self.parents[i] = random.choices(self.chromosomes, self.chromosomes_p)[0]
+            print(self.parents[i])
+        print('parent = ', len(self.parents))
+    
+    def change(self, parent1, parent2):
+        print('A : ', parent1)
+        print('B : ', parent2)
+        point = int(len(parent1)/2)
+        print('point: ', point) #3
+        cross_A = parent1[0:point]+parent2[point:]
+        cross_B = parent2[0:point]+parent1[point:]
+        print('cross A : ', cross_A)
+        print('cross B : ', cross_B)
+        print(parent1[point:])
+        print(parent2[point:])
+        cut_A=parent1[point:]
+        cut_B=parent2[point:]
+        C = [x for x in cut_A if x not in cut_B]
+        D = [x for x in cut_B if x not in cut_A]
+        print('C: ', C)
+        print('D: ', D)
+        for i in range(len(C)):
+            index1 = cross_A.index(D[i], point, len(parent2))
+            index2 = cross_B.index(C[i], point, len(parent1))
+            print('index1 = ', index1)
+            print('index2 = ', index2)
+            cross_A[index1] = C[i]
+            cross_B[index2] = D[i]
+            print('cross A : ', cross_A)
+            print('cross B : ', cross_B)
+        return cross_A, cross_B
+
+    def crossover(self):
+        self.choise_parents()
+
+        for i in range(0, POP_size, 2):
+            self.child[i], self.child[i+1] = self.change(self.parents[i], self.parents[i+1])
+        print('child : ', self.child)
+
+        
+
 
 if __name__ == '__main__':
     input = [
@@ -32,7 +94,10 @@ if __name__ == '__main__':
     [12,  3, 14, 17]
     ]
     solver = Problem(input)
-    GA(solver.numTasks)
+    ans=GA(solver)
+    ans.evaluate_fitness()
+    ans.crossover()
+
 
     #numAgents = len(input[0])
     #BFans = BF(numAgents)
