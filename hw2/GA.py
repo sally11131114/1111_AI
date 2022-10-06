@@ -18,48 +18,56 @@ def Best_ans(solver, population):
         if tmp_cost<min : 
             index = i
             min = tmp_cost
-    print('min= ', min)
     return population[index]
 
+def fact(num):
+    if num == 0 : return 1
+    if num >= 1 : return num*fact(num-1)
+
 import random
-POP_size = 16
 class GA:
     def __init__(self, solver):
-        self.chromosomes = [[ j  for j in range(solver.numTasks)] for i in range(POP_size)]
-        self.chromosomes_cost = [ 0 for i in range(POP_size)]
-        self.chromosomes_fitness = [ 0 for i in range(POP_size)]
-        self.chromosomes_p = [ 0 for i in range(POP_size)]
-        self.parents = [ 0 for i in range(POP_size)]
-        self.child = [ 0 for i in range(POP_size)]
+        self.POP_size = 80#int(fact(solver.numTasks)/10)
+        self.chromosomes = [[ j  for j in range(solver.numTasks)] for i in range(self.POP_size)]
+        self.chromosomes_cost = [ 0 for i in range(self.POP_size)]
+        self.chromosomes_fitness = [ 0 for i in range(self.POP_size)]
+        self.chromosomes_p = [ 0 for i in range(self.POP_size)]
+        self.parents = [ 0 for i in range(self.POP_size)]
+        self.child = [ 0 for i in range(self.POP_size)]
         self.best = []
         self.sol = solver
 
-        while True :
-            self.chromosomes_dup = [ 0 for i in range(POP_size)]
-            for i in range(POP_size):
-                random.shuffle(self.chromosomes[i])
-                for j in range(solver.numTasks):
-                    self.chromosomes_dup[i] += self.chromosomes[i][j]*pow(10, j)
-            print('len : ', len(set(self.chromosomes_dup)))
-            if len(set(self.chromosomes_dup)) == POP_size : break; 
-            #檢查染色體有沒有重複 
+        # while True :
+        #     self.chromosomes_dup = [ 0 for i in range(self.POP_size)]
+        #     for i in range(self.POP_size):
+        #         random.shuffle(self.chromosomes[i])
+        #         for j in range(solver.numTasks):
+        #             self.chromosomes_dup[i] += self.chromosomes[i][j]*pow(10, j)
+        #     print('len : ', len(set(self.chromosomes_dup)))
+        #     if len(set(self.chromosomes_dup)) == self.POP_size : break; 
+        #     #檢查染色體有沒有重複 
+
+        for i in range(self.POP_size):
+            random.shuffle(self.chromosomes[i])
+        #檢查染色體有沒有重複 
+
         self.best = Best_ans(self.sol, self.chromosomes)
         print('After shuffle : ', self.chromosomes)
         print('self.best: ', self.best)
 
     def evaluate_fitness(self):
-        for i in range(POP_size):
+        for i in range(self.POP_size):
             self.chromosomes_cost[i] = self.sol.cost(self.chromosomes[i])
         cost_max = max(self.chromosomes_cost)
         cost_min = min(self.chromosomes_cost)
-        for i in range(POP_size):
+        for i in range(self.POP_size):
             self.chromosomes_fitness[i] = 1-(self.chromosomes_cost[i]-cost_min)/(cost_max-cost_min)
 
     def choise_parents(self):
-        for i in range(POP_size):
+        for i in range(self.POP_size):
             self.chromosomes_p[i] = round(self.chromosomes_fitness[i]/sum(self.chromosomes_fitness), 4)
 
-        for i in range(POP_size):
+        for i in range(self.POP_size):
             self.parents[i] = random.choices(self.chromosomes, self.chromosomes_p)[0]
             print(self.parents[i])
         print('parent = ', len(self.parents))
@@ -95,13 +103,13 @@ class GA:
     def crossover(self):
         self.choise_parents()
 
-        for i in range(0, POP_size, 2):
+        for i in range(0, self.POP_size, 2):
             self.child[i], self.child[i+1] = self.change(self.parents[i], self.parents[i+1])
         print('child : ', self.child)
     
     def mutate(self):
-        for i in range(int(POP_size/3)):
-            mutation = random.randint(0, POP_size-1)
+        for i in range(int(self.POP_size/3)):
+            mutation = random.randint(0, self.POP_size-1)
             print('mutation', mutation)
             temp = self.child[mutation]
             s1 = random.randint(0, self.sol.numTasks-1)
@@ -109,32 +117,44 @@ class GA:
             print('s1, s2: ', s1, s2)
             temp[s1], temp[s2] = temp[s2], temp[s1]
             self.child[mutation] = temp
-            print("HI", int(POP_size/3))
+            #print("HI", int(POP_size/3))
         print('child after mutate: ', self.child)
-        self.best = Best_ans(self.sol, self.child)
+        current_best = Best_ans(self.sol, self.child)
+        if self.sol.cost(current_best) < self.sol.cost(self.best):
+            self.best = current_best
         print('self.best: ', self.best)
-
-        
-
 
 if __name__ == '__main__':
     input = [
-    [10, 20, 23,  4],
-    [15, 13,  6, 25],
-    [ 2, 22, 35, 34],
-    [12,  3, 14, 17]
+    [0.43045255, 0.78681387, 0.07514408, 0.72583933, 0.52916145, 0.87483212, 0.34701621],
+ [0.68704291, 0.45392742, 0.46862110, 0.67669006, 0.23817468, 0.87520581, 0.67311418],
+ [0.38505150, 0.05974168, 0.11388629, 0.28978058, 0.66089373, 0.92592403, 0.70718757],
+ [0.24975701, 0.16937649, 0.42003672, 0.88231235, 0.74635725, 0.59854858, 0.88631100],
+ [0.64895582, 0.58909596, 0.99772334, 0.85522575, 0.33916707, 0.72873479, 0.26826203],
+ [0.47939038, 0.88484586, 0.05122520, 0.83527995, 0.37219939, 0.20375257, 0.50482283],
+ [0.58926554, 0.45176739, 0.25217475, 0.83548120, 0.41687026, 0.00293049, 0.23939052]
     ]
     solver = Problem(input)
     ans=GA(solver)
-    ans.evaluate_fitness()
-    ans.crossover()
-    ans.mutate()
-
-
-    #numAgents = len(input[0])
-    #BFans = BF(numAgents)
-
-    #yourAssignment = [3, 2, 0, 1] #⽤演算法得出的答案
-    #solver = Problem(input)
-    #print('Assignment:', BFans) # print 出分配結果
-    #print('Cost:', solver.cost(BFans)) # print 出 cost 是多少
+    thres = 0
+    pre_best_ans = []
+    # while thres!=5:
+    #     ans.evaluate_fitness()
+    #     ans.crossover()
+    #     ans.mutate()
+    #     print('pre_best_ans: ', pre_best_ans)
+    #     print('ans.best', ans.best)
+    #     if pre_best_ans == ans.best:
+    #         thres += 1
+    #         print('HHHHHEY')
+    #     else:
+    #         thres = 0
+    #     print('thres: ', thres)
+    #     pre_best_ans = ans.best
+    for i in range(150):
+        ans.evaluate_fitness()
+        ans.crossover()
+        ans.mutate()
+    GAans = ans.best
+    print('Assignment:', GAans) # print 出分配結果
+    print('Cost:', solver.cost(GAans)) # print 出 cost 是多少
