@@ -9,21 +9,19 @@ class Problem:
         return totalTime
 
 
-def Best_ans(population):
+def Best_ans(solver, population):
 
     min = solver.cost(population[0])
     index = 0
     for i in range(len(population)):
-        cost = 0
-        for task, agent in enumerate(population[i]):
-            cost+=input[task][agent]
-        if cost<min : 
+        tmp_cost = solver.cost(population[i])
+        if tmp_cost<min : 
             index = i
-            min = cost
+            min = tmp_cost
     return population[index]
 
 import random
-POP_size = 20
+POP_size = 10
 class GA:
     def __init__(self, solver):
         self.chromosomes = [[ j  for j in range(solver.numTasks)] for i in range(POP_size)]
@@ -33,6 +31,7 @@ class GA:
         self.parents = [ 0 for i in range(POP_size)]
         self.child = [ 0 for i in range(POP_size)]
         self.best = []
+        self.sol = solver
 
         while True :
             self.chromosomes_dup = [ 0 for i in range(POP_size)]
@@ -43,10 +42,9 @@ class GA:
             print('len : ', len(set(self.chromosomes_dup)))
             if len(set(self.chromosomes_dup)) == POP_size : break; 
             #檢查染色體有沒有重複 
-        self.best = Best_ans(self.chromosomes)
+        self.best = Best_ans(self.sol, self.chromosomes)
         print('After shuffle : ', self.chromosomes)
         print('self.best: ', self.best)
-        self.sol = solver
 
     def evaluate_fitness(self):
         for i in range(POP_size):
@@ -66,10 +64,10 @@ class GA:
         print('parent = ', len(self.parents))
     
     def change(self, parent1, parent2):
-        print('A : ', parent1)
-        print('B : ', parent2)
+        # print('A : ', parent1)
+        # print('B : ', parent2)
         point = int(len(parent1)/2)
-        print('point: ', point) #3
+        # print('point: ', point) #3
         cross_A = parent1[0:point]+parent2[point:]
         cross_B = parent2[0:point]+parent1[point:]
         print('cross A : ', cross_A)
@@ -101,7 +99,19 @@ class GA:
         print('child : ', self.child)
     
     def mutate(self):
-        
+        for i in range(int(POP_size/3)):
+            mutation = random.randint(0, POP_size)
+            print('mutation', mutation)
+            temp = self.child[mutation]
+            s1 = random.randint(0, self.sol.numTasks-1)
+            s2 = random.randint(0, self.sol.numTasks-1)
+            print('s1, s2: ', s1, s2)
+            temp[s1], temp[s2] = temp[s2], temp[s1]
+            self.child[mutation] = temp
+            print("HI", int(POP_size/3))
+        print('child after mutate: ', self.child)
+        self.best = Best_ans(self.sol, self.child)
+        print('self.best: ', self.best)
 
         
 
@@ -117,6 +127,7 @@ if __name__ == '__main__':
     ans=GA(solver)
     ans.evaluate_fitness()
     ans.crossover()
+    ans.mutate()
 
 
     #numAgents = len(input[0])
