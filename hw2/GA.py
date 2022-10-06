@@ -18,10 +18,11 @@ def Best_ans(solver, population):
         if tmp_cost<min : 
             index = i
             min = tmp_cost
+    print('min= ', min)
     return population[index]
 
 import random
-POP_size = 10
+POP_size = 16
 class GA:
     def __init__(self, solver):
         self.chromosomes = [[ j  for j in range(solver.numTasks)] for i in range(POP_size)]
@@ -100,7 +101,7 @@ class GA:
     
     def mutate(self):
         for i in range(int(POP_size/3)):
-            mutation = random.randint(0, POP_size)
+            mutation = random.randint(0, POP_size-1)
             print('mutation', mutation)
             temp = self.child[mutation]
             s1 = random.randint(0, self.sol.numTasks-1)
