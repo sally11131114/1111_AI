@@ -16,9 +16,6 @@ result=[]
 def permutations(input, num, end=[]):
     global result
     in_len=len(input)
-    # if flag==1:
-    #     result=[]
-    #     flag=0
     if in_len == 0:
         result.append(list(end))
         #print('result:', result)
@@ -33,17 +30,7 @@ def permutations(input, num, end=[]):
 
 def BF(solver):
     global result
-    #print('numAgents:', solver.numTasks)
-    # global_num = solver.numTasks
-    # print('global_num: ', global_num)
-    #result=[]
     permutations(list(range(solver.numTasks)), num=solver.numTasks)
-    #print('####', result)
-
-    # if result>math.factorial(solver.numTasks):
-    #     result = result[]
-    # if solver.numTasks==4:
-    #     print(result)
     min = solver.cost(result[0])
     index = 0
     for i in range(len(result)):
@@ -52,19 +39,6 @@ def BF(solver):
             index = i
             min = tmp_cost
     return result[index]
-
-    # result = permutations(list(range(numAgents)))
-
-    # min = solver.cost(result[0])
-    # index = 0
-    # for i in range(len(result)):
-    #     cost = 0
-    #     for task, agent in enumerate(result[i]):
-    #         cost+=input[task][agent]
-    #     if cost<min : 
-    #         index = i
-    #         min = cost
-    # return result[index]
     
 
 if __name__ == '__main__':
